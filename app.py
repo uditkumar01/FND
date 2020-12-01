@@ -10,8 +10,8 @@ import os
 
 import time
 
-my_api_key = "AIzaSyCyMa_joKNbuNXSKHLXNFF1IL_YKArXqF8"
-my_cse_id = "ff7b372992dbc2e95"
+my_api_key = os.environ.get('API_KEY')
+my_cse_id = os.environ.get('CSE_KEY')
 
 def google_search(search_term, api_key, cse_id, **kwargs):
     service = build("customsearch", "v1", developerKey=api_key)
@@ -121,7 +121,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("1335916148:AAH0LgIGZscF5ayCeVCTNvlSDqU19Kdkyck", use_context=True)
+    updater = Updater(os.environ.get('TOKEN'), use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
