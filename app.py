@@ -1,5 +1,3 @@
-from apiclient.discovery import build
-
 import logging
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -10,64 +8,236 @@ import os
 
 import time
 
-my_api_key = os.environ.get('API_KEY')
-my_cse_id = os.environ.get('CSE_KEY')
-
-def google_search(search_term, api_key, cse_id, **kwargs):
-    service = build("customsearch", "v1", developerKey=api_key)
-    res = service.cse().list(q=search_term, cx=cse_id, **kwargs).execute()
-    return res['items']
+from googlesearch import search 
+import requests 
+from bs4 import BeautifulSoup 
 
 
-def check_news(query):
-    try:
-        
-        results = google_search(
-            query+' true or false', my_api_key, my_cse_id, num=10)
-        print(results[0])
-        fake_list = ["spurious","bogus","bait",'not',"forged","misinformation","disinformation","fraudulent","fictitious","reliability","counterfeit","make-believe","false","stories","fabricated","pretend","imitation","feign","fraud","falsify","artificial","simulate","forged","forge","forgery","phony","sham","fraudulent","faked","fraudulent","cheat","mock","spurious","feigned"]
+fake_list = ["spurious","bogus","bait",'not', "neither", "no", "nope","forged","misinformation","disinformation","fraudulent","fictitious","reliability","counterfeit","make-believe","false","stories","fabricated","pretend","imitation","feign","fraud","falsify","artificial","simulate","forged","forge","forgery","phony","sham","fraudulent","faked","fraudulent","cheat","mock","spurious","feigned"]
+
+
+
+
+
+
+def getdata(url, check_type = True): 
+
+    with requests.session() as s:
+        r = s.get(url) 
         fake_count = 0
-        image = []
-        link1 = []
-        for result in results:
-            # print(result.get('link'))
-            if (result.get('pagemap'))[0].get('src'):
-                image.append((result.get('pagemap'))[0].get('src'))
-            if result.get('link'):
-                link1.append(result.get('link'))
-            for word in fake_list:
-                if word in result.get('title').lower().strip().split():
-                    fake_count+=11
-                    print(word)
-            for word in fake_list:
-                if word in result.get('snippet').lower().strip().split():
-                    fake_count+=9
-                    print(word)              
+        soup = BeautifulSoup(r.text, 'html.parser')
+        img_tags = soup.find_all('img')
+        image,link1 = "",url
+
+        for img in img_tags:
+            try:
+                image_link = img.get('src')
+                if image_link and 'static' not in image_link.lower() and 'qrcode' not in image_link.lower() and 'http' in image_link.lower() and ('.jpg' in image_link.lower() or '.png' in image_link.lower() or 'webp' in image_link.lower() or 'jpeg' in image_link.lower()) :
+                    image=str(image_link)
+                    break
+                    
+            except:
+                pass
+
+        for data in soup.find_all("p"): 
+            if not data:
+                break
+            # print(data)
+            data = str(data)
+            data = data.replace('<',' ')
+            data = data.replace('>',' ')
+            data = data.replace('\n',' ')
+            
+            for word in data.strip().split():
+                if word in fake_list:
+                    fake_count += 10
+
+        if fake_count > 50:
+            percent = (fake_count/len(fake_list))*100
+            if fake_count > 50:
+                percent = 100
+            if percent > 100:
+                percent = 100
+
+            if check_type:
+                return [percent, image, link1]
+            else:
+                return [100-percent, image, link1]
+
+        for data in soup.find_all("h1"): 
+            if not data:
+                break
+            data = str(data)
+            data = data.replace('<',' ')
+            data = data.replace('>',' ')
+            data = data.replace('\n',' ')
+            # data = data.replace('\n',' ')
+            for word in data.strip().split():
+                if word in fake_list:
+                    fake_count += 10
+
+        if fake_count > 50:
+            percent = (fake_count/len(fake_list))*100
+            if fake_count > 50:
+                percent = 100
+            if percent > 100:
+                percent = 100
+
+            if check_type:
+                return [percent, image, link1]
+            else:
+                return [100-percent, image, link1]
+
+        for data in soup.find_all("h2"): 
+            if not data:
+                break
+            data = str(data)
+            data = data.replace('<',' ')
+            data = data.replace('>',' ')
+            data = data.replace('\n',' ')
+            for word in data.strip().split():
+                if word in fake_list:
+                    fake_count += 10
+
+        if fake_count > 50:
+            percent = (fake_count/len(fake_list))*100
+            if fake_count > 50:
+                percent = 100
+            if percent > 100:
+                percent = 100
+
+            if check_type:
+                return [percent, image, link1]
+            else:
+                return [100-percent, image, link1]
         
+        for data in soup.find_all("h3"): 
+            if not data:
+                break
+            data = str(data)
+            data = data.replace('<',' ')
+            data = data.replace('>',' ')
+            data = data.replace('\n',' ')
+            for word in data.strip().split():
+                if word in fake_list:
+                    fake_count += 10
+
+        if fake_count > 50:
+            percent = (fake_count/len(fake_list))*100
+            if fake_count > 50:
+                percent = 100
+            if percent > 100:
+                percent = 100
+
+            if check_type:
+                return [percent, image, link1]
+            else:
+                return [100-percent, image, link1]
+        
+        for data in soup.find_all("h4"):
+            if not data:
+                break 
+            data = str(data)
+            data = data.replace('<',' ')
+            data = data.replace('>',' ')
+            data = data.replace('\n',' ')
+            for word in data.strip().split():
+                if word in fake_list:
+                    fake_count += 10
+
+        if fake_count > 50:
+            percent = (fake_count/len(fake_list))*100
+            if fake_count > 50:
+                percent = 100
+            if percent > 100:
+                percent = 100
+
+            if check_type:
+                return [percent, image, link1]
+            else:
+                return [100-percent, image, link1]
+        
+        for data in soup.find_all("h5"):
+            if not data:
+                break 
+            data = str(data)
+            data = data.replace('<',' ')
+            data = data.replace('>',' ')
+            data = data.replace('\n',' ')
+            for word in data.strip().split():
+                if word in fake_list:
+                    fake_count += 10
+
+        if fake_count > 50:
+            percent = (fake_count/len(fake_list))*100
+            if fake_count > 50:
+                percent = 100
+            if percent > 100:
+                percent = 100
+
+            if check_type:
+                return [percent, image, link1]
+            else:
+                return [100-percent, image, link1]
+
+        for data in soup.find_all("h5"): 
+            if not data:
+                break
+            data = str(data)
+            data = data.replace('<',' ')
+            data = data.replace('>',' ')
+            data = data.replace('\n',' ')
+            for word in data.strip().split():
+                if word in fake_list:
+                    fake_count += 10
+
         percent = (fake_count/len(fake_list))*100
         if fake_count > 50:
             percent = 100
         if percent > 100:
             percent = 100
-        
+
+        if check_type:
+            return [percent, image, link1]
+        else:
+            return [100-percent, image, link1]
 
 
-
-        print("fake "+str(percent)+" %")
-        
-        image.append("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm4AK_Nm2YPvDLnkRY5zse95m9EbiNcP19dg&usqp=CAU")
-
-        return [str(percent)+"% "+"fake", image[0], link1[0]]
-
-
-    except KeyError:
-        print("No Results")
-        return ["No Results"]
+# to search 
+def search_me(query, msg):
+    print(query)
+    query = query.replace('\n',' ')
+    check = True
+    for word in query.strip().split():
+        if word in fake_list:
+            check = False
+            break
     
-    except:
-        return ["queries quota exceeded"]
+    total,total_count = 0,0
+    image,link1 = "",""
+    import time,math
+    # time_now = time.time()
+    # first_time = True
+    for j in search(query+" true or false " ,num_results=20, lang="en"):
 
-print(check_news("ronaldo is corona positive"))
+        per = total_count/20
+        try:
+            time.sleep(1.5)
+            diff = math.ceil(per*15)
+            msg.edit_text("["+"●"*diff+"○"*(15-diff)+"]"+" "+str(math.ceil(per*100))+"%\n\n"+str(j))
+        except:
+            pass
+
+        ans1 = getdata(j,check)
+        total+=ans1[0]
+        if image=="":
+            image = ans1[1]
+        if link1=="":
+            link1 = ans1[2]
+        total_count+=1
+
+    msg.edit_text("[●●●●●●●●●●●●●●●] 100%\n Hope u like it...")
+    return [round(total/total_count,2),image,link1]
 
 # main bot
 logging.basicConfig(
@@ -82,7 +252,7 @@ logger = logging.getLogger(__name__)
 def start(update, context):
     """Send a message when the command /start is issued."""
     
-    update.message.reply_text('Hi, this bot can help you in your homework.\nTo begin with it type "\convert"')
+    update.message.reply_text('Hi, this bot can help you in your homework.\nTo begin with it type "/convert"')
 
 def convert(update, context):
     """Send a message when the command /start is issued."""
@@ -98,17 +268,20 @@ import urllib.request,urllib
 
 def echo(update, context):
     """Echo the user message."""
-    ans = check_news(update.message.text)
+    chat_id = update.message.chat.id
+    msg = update.message.reply_text("okay lemme check...")
+    ans = search_me(update.message.text, msg)
     print('ssssssssssssssssssssssssssssss',ans)
     
-    chat_id = update.message.chat.id
+    
+    
     if len(ans) > 1:
         urllib.request.urlretrieve(ans[1], "msg.jpg")
-        with open('msg.jpg', 'rb') as jordan_picture:
-            caption = "<strong>This news is "+ ans[0] +".</strong> <em><a style='font-size:10px;' href='ans[2]'>learn more</a></em>"
+        with open('msg.jpg', 'rb') as my_picture:
+            caption = "\n<strong>This news is "+ str(ans[0]) +"% fake. To know more about it -> </strong> <em><a style='font-size:10px;' href='"+ans[2]+"'>learn more</a></em>\n<em style='color:green;'>Hope You like it ...</em>"
             context.bot.send_photo(
                 chat_id, 
-                photo=jordan_picture, 
+                photo=my_picture, 
                 caption=caption,
                 parse_mode=telegram.ParseMode.HTML
             )
@@ -121,7 +294,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(os.environ.get('TOKEN'), use_context=True)
+    updater = Updater("1366856034:AAGSKYkfeu0lkigN4vkIlzb5mwOvfpD0psE", use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -132,7 +305,7 @@ def main():
     dp.add_handler(CommandHandler("help", help_command))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo, run_async=True))
 
     # dp.add_handler(MessageHandler(Filters.document.txt, read_pdf))
 
