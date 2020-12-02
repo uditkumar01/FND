@@ -218,13 +218,14 @@ def search_me(query, msg):
     import time,math
     # time_now = time.time()
     # first_time = True
-    for j in search(query+" true or false " ,num_results=20, lang="en"):
+    for j in search(query+" true or false " ,num_results=50, lang="en"):
 
-        per = total_count/20
+        per = total_count/50
         try:
-            time.sleep(1.5)
-            diff = math.ceil(per*15)
-            msg.edit_text("["+"●"*diff+"○"*(15-diff)+"]"+" "+str(math.ceil(per*100))+"%\n\n"+str(j))
+            # time.sleep(1.5)
+            if total_count==0 or total_count%4==0:
+                diff = math.ceil(per*15)
+                msg.edit_text("["+"●"*diff+"○"*(15-diff)+"]"+" "+str(math.ceil(per*100))+"%\n\n"+str(j))
         except:
             pass
 
@@ -237,7 +238,7 @@ def search_me(query, msg):
         total_count+=1
 
     msg.edit_text("[●●●●●●●●●●●●●●●] 100%\n Hope u like it...")
-    return [round(total/total_count,2),image,link1]
+    return [100-round(total/total_count,2),image,link1]
 
 # main bot
 logging.basicConfig(
@@ -294,7 +295,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("1366856034:AAGSKYkfeu0lkigN4vkIlzb5mwOvfpD0psE", use_context=True)
+    updater = Updater(os.environ.get('TOKEN'), use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
