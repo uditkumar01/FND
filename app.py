@@ -17,210 +17,68 @@ fake_list = ["spurious","bogus","bait",'not', "neither", "no", "nope","forged","
 
 
 
+def get_list(query):
+    stop = set(stopwords.words('english'))
+    all_stops = stop | set(string.punctuation)
+    get_tokens = nltk.word_tokenize(query)
+    # get_query_fake_words = []
+    text_no_stop_words_punct = [t for t in get_tokens if t not in all_stops or t in fake_list]
+
+    print(text_no_stop_words_punct)
+    return set(text_no_stop_words_punct)
 
 
 
-def getdata(url, check_type = True): 
+def getdata(url, query_dict): 
 
-    with requests.session() as s:
-        r = s.get(url) 
-        fake_count = 0
-        soup = BeautifulSoup(r.text, 'html.parser')
-        img_tags = soup.find_all('img')
-        image,link1 = "",url
+    try:
+        with requests.session() as s:
+            r = s.get(url) 
+            percent = 0
+            soup = BeautifulSoup(r.text, 'html.parser')
+            img_tags = soup.find_all('img')
+            image,link1 = "",url
 
-        for img in img_tags:
-            try:
-                image_link = img.get('src')
-                if image_link and 'static' not in image_link.lower() and 'qrcode' not in image_link.lower() and 'http' in image_link.lower() and ('.jpg' in image_link.lower() or '.png' in image_link.lower() or 'webp' in image_link.lower() or 'jpeg' in image_link.lower()) :
-                    image=str(image_link)
-                    break
-                    
-            except:
-                pass
+            for img in img_tags:
+                try:
+                    image_link = img.get('src')
+                    if image_link and 'static' not in image_link and 'http' in image_link and ('.jpg' in image_link or '.png' in image_link or 'webp' in image_link or '.JPG' in image_link or '.PNG' in image_link or 'jpeg' in image_link or 'JPEG' in image_link) :
+                        image=str(image_link)
+                        break
+                        
+                except:
+                    pass
+            z2 = soup.find_all("h1") + soup.find_all("h2") + soup.find_all("h3") + soup.find_all("h4") + soup.find_all("h5") + soup.find_all("h6") + soup.find_all("p")
+            for data in z2:
 
-        for data in soup.find_all("p"): 
-            if not data:
-                break
-            # print(data)
-            data = str(data)
-            data = data.replace('<',' ')
-            data = data.replace('>',' ')
-            data = data.replace('\n',' ')
-            
-            for word in data.strip().split():
-                if word in fake_list:
-                    fake_count += 10
+                diff_l = query_dict - get_list(data.get_text())
+                percent = (len(diff_l)/len(query_dict))*100
+                for word in diff_l:
+                    if word in fake_list:
+                        percent = 0
 
-        if fake_count > 50:
-            percent = (fake_count/len(fake_list))*100
-            if fake_count > 50:
-                percent = 100
-            if percent > 100:
-                percent = 100
 
-            if check_type:
-                return [percent, image, link1]
-            else:
-                return [100-percent, image, link1]
-
-        for data in soup.find_all("h1"): 
-            if not data:
-                break
-            data = str(data)
-            data = data.replace('<',' ')
-            data = data.replace('>',' ')
-            data = data.replace('\n',' ')
-            # data = data.replace('\n',' ')
-            for word in data.strip().split():
-                if word in fake_list:
-                    fake_count += 10
-
-        if fake_count > 50:
-            percent = (fake_count/len(fake_list))*100
-            if fake_count > 50:
-                percent = 100
-            if percent > 100:
-                percent = 100
-
-            if check_type:
-                return [percent, image, link1]
-            else:
-                return [100-percent, image, link1]
-
-        for data in soup.find_all("h2"): 
-            if not data:
-                break
-            data = str(data)
-            data = data.replace('<',' ')
-            data = data.replace('>',' ')
-            data = data.replace('\n',' ')
-            for word in data.strip().split():
-                if word in fake_list:
-                    fake_count += 10
-
-        if fake_count > 50:
-            percent = (fake_count/len(fake_list))*100
-            if fake_count > 50:
-                percent = 100
-            if percent > 100:
-                percent = 100
-
-            if check_type:
-                return [percent, image, link1]
-            else:
-                return [100-percent, image, link1]
+        return [percent, image, link1]
         
-        for data in soup.find_all("h3"): 
-            if not data:
-                break
-            data = str(data)
-            data = data.replace('<',' ')
-            data = data.replace('>',' ')
-            data = data.replace('\n',' ')
-            for word in data.strip().split():
-                if word in fake_list:
-                    fake_count += 10
+    except:
 
-        if fake_count > 50:
-            percent = (fake_count/len(fake_list))*100
-            if fake_count > 50:
-                percent = 100
-            if percent > 100:
-                percent = 100
-
-            if check_type:
-                return [percent, image, link1]
-            else:
-                return [100-percent, image, link1]
-        
-        for data in soup.find_all("h4"):
-            if not data:
-                break 
-            data = str(data)
-            data = data.replace('<',' ')
-            data = data.replace('>',' ')
-            data = data.replace('\n',' ')
-            for word in data.strip().split():
-                if word in fake_list:
-                    fake_count += 10
-
-        if fake_count > 50:
-            percent = (fake_count/len(fake_list))*100
-            if fake_count > 50:
-                percent = 100
-            if percent > 100:
-                percent = 100
-
-            if check_type:
-                return [percent, image, link1]
-            else:
-                return [100-percent, image, link1]
-        
-        for data in soup.find_all("h5"):
-            if not data:
-                break 
-            data = str(data)
-            data = data.replace('<',' ')
-            data = data.replace('>',' ')
-            data = data.replace('\n',' ')
-            for word in data.strip().split():
-                if word in fake_list:
-                    fake_count += 10
-
-        if fake_count > 50:
-            percent = (fake_count/len(fake_list))*100
-            if fake_count > 50:
-                percent = 100
-            if percent > 100:
-                percent = 100
-
-            if check_type:
-                return [percent, image, link1]
-            else:
-                return [100-percent, image, link1]
-
-        for data in soup.find_all("h5"): 
-            if not data:
-                break
-            data = str(data)
-            data = data.replace('<',' ')
-            data = data.replace('>',' ')
-            data = data.replace('\n',' ')
-            for word in data.strip().split():
-                if word in fake_list:
-                    fake_count += 10
-
-        percent = (fake_count/len(fake_list))*100
-        if fake_count > 50:
-            percent = 100
-        if percent > 100:
-            percent = 100
-
-        if check_type:
-            return [percent, image, link1]
-        else:
-            return [100-percent, image, link1]
+        return -1
 
 
 # to search 
 def search_me(query, msg):
+    # print(query)
     print(query)
-    query = query.replace('\n',' ')
-    check = True
-    for word in query.strip().split():
-        if word in fake_list:
-            check = False
-            break
-    
+    query_dict = get_list(query)
     total,total_count = 0,0
     image,link1 = "",""
+
     import time,math
     # time_now = time.time()
     # first_time = True
-    for j in search(query+" true or false " ,num_results=50, lang="en"):
+    for j in search(query+" is it true ?" ,num_results=10, lang="en"):
 
-        per = total_count/50
+        per = total_count/10
         try:
             # time.sleep(1.5)
             if total_count==0 or total_count%4==0:
@@ -229,16 +87,22 @@ def search_me(query, msg):
         except:
             pass
 
-        ans1 = getdata(j,check)
-        total+=ans1[0]
-        if image=="":
-            image = ans1[1]
-        if link1=="":
-            link1 = ans1[2]
-        total_count+=1
+        
+        ans1 = getdata(j,query_dict)
+        if ans1 == -1:
+            pass
+        else:
+            if ans1[0] == 100:
+                [round(100,2),image,link1]
+            total+=ans1[0]
+            if image=="":
+                image = ans1[1]
+            if link1=="":
+                link1 = ans1[2]
+            total_count+=1
 
     msg.edit_text("[●●●●●●●●●●●●●●●] 100%\n Hope u like it...")
-    return [100-round(total/total_count,2),image,link1]
+    return [round(total/total_count,2),image,link1]
 
 # main bot
 logging.basicConfig(
@@ -277,9 +141,12 @@ def echo(update, context):
     
     
     if len(ans) > 1:
-        urllib.request.urlretrieve(ans[1], "msg.jpg")
+        try:
+            urllib.request.urlretrieve(ans[1], "msg.jpg")
+        except:
+            urllib.request.urlretrieve("https://static.toiimg.com/thumb/imgsize-351883,msid-74902915,width-400,resizemode-4/74902915.jpg", "msg.jpg")
         with open('msg.jpg', 'rb') as my_picture:
-            caption = "\n<strong>This news is "+ str(ans[0]) +"% fake. To know more about it -> </strong> <em><a style='font-size:10px;' href='"+ans[2]+"'>learn more</a></em>\n<em style='color:green;'>Hope You like it ...</em>"
+            caption = "\n<strong>This news is "+ str(ans[0]) +"% true. To know more about it -> </strong> <em><a style='font-size:10px;' href='"+ans[2]+"'>learn more</a></em>\n<em style='color:green;'>Hope You like it ...</em>"
             context.bot.send_photo(
                 chat_id, 
                 photo=my_picture, 
@@ -295,7 +162,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(os.environ.get('TOKEN'), use_context=True)
+    updater = Updater("1335916148:AAEup9wHp5xuV3BpoAwKtxYl8X589CxBTlg", use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
