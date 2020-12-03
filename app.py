@@ -12,6 +12,10 @@ from googlesearch import search
 import requests 
 from bs4 import BeautifulSoup 
 
+from nltk.corpus import stopwords
+import string
+import nltk
+
 
 fake_list = ["spurious","bogus","bait",'not', "neither", "no", "nope","forged","misinformation","disinformation","fraudulent","fictitious","reliability","counterfeit","make-believe","false","stories","fabricated","pretend","imitation","feign","fraud","falsify","artificial","simulate","forged","forge","forgery","phony","sham","fraudulent","faked","fraudulent","cheat","mock","spurious","feigned"]
 
