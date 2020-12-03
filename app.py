@@ -12,18 +12,17 @@ from googlesearch import search
 import requests 
 from bs4 import BeautifulSoup 
 
-from nltk.corpus import stopwords
+# from nltk.corpus import stopwords
 import string
 import nltk
 
 
 fake_list = ["spurious","bogus","bait",'not', "neither", "no", "nope","forged","misinformation","disinformation","fraudulent","fictitious","reliability","counterfeit","make-believe","false","stories","fabricated","pretend","imitation","feign","fraud","falsify","artificial","simulate","forged","forge","forgery","phony","sham","fraudulent","faked","fraudulent","cheat","mock","spurious","feigned"]
-
+all_stops = {'hadn', 'this', 'during', 'does', 'over', 'between', 'any', 'under', "you're", 'if', 'where', 'it', 'weren', 'these', 'again', 'in', '.', 'have', 'not', 'mightn', '%', '}', "weren't", 's', 'so', 'against', 'while', 'few', 'now', 'with', 'into', 'doesn', 'than', '@', 'are', 'of', 'some', 'isn', 'she', 're', 'needn', 'you', "doesn't", 'your', 'yours', 'o', 't', '*', 'but', 'them', '+', 'too', "wasn't", 'do', "that'll", 'hasn', 'own', 'ourselves', 'most', "don't", 'same', "hasn't", '{', '&', 've', 'why', 'above', 'those', 'yourself', 'wasn', 'myself', 'he', "she's", 'by', ';', 'below', '[', "hadn't", 'before', 'which', 'for', '>', "wouldn't", 'there', 'an', 'm', 'me', "shan't", 'ain', '(', 'a', 'has', 'y', 'no', "shouldn't", 'down', 'about', "it's", "isn't", "needn't", 'other', 'the', '=', 'after', '|', "you'd", 'been', 'having', '$', 'themselves', "mustn't", 'herself', '/', ':', 'mustn', 'hers', 'from', 'is', 'can', 'll', '-', "you'll", "aren't", 'should', 'up', 'very', 'whom', 'being', 'then', 'theirs', 'shan', 'd', 'yourselves', '"', "'", 'when', 'was', ',', 'because', '_', "mightn't", 'both', 'nor', 'itself', "you've", 'such', 'their', 'at', 'don', '?', "won't", 'were', 'shouldn', 'am', '`', "should've", '!', 'until', 'just', "didn't", 'and', 'out', 'further', 'how', "haven't", 'won', '^', 'more', 'ours', 'wouldn', 'they', 'to', 'its', 'my', 'only', 'what', 'once', '\\', ')', 'did', 'her', 'here', 'through', 'ma', '~', 'had', 'his', 'haven', '<', 'who', 'aren', 'all', 'didn', 'himself', 'as', 'will', 'i', 'that', 'our', 'doing', 'be', 'him', 'couldn', 'each', '#', 'we', 'off', 'or', "couldn't", 'on', ']'}
 
 
 def get_list(query):
-    stop = set(stopwords.words('english'))
-    all_stops = stop | set(string.punctuation)
+    
     get_tokens = nltk.word_tokenize(query)
     # get_query_fake_words = []
     text_no_stop_words_punct = [t for t in get_tokens if t not in all_stops or t in fake_list]
