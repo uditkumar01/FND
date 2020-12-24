@@ -13,11 +13,18 @@ import requests
 from bs4 import BeautifulSoup 
 
 # from nltk.corpus import stopwords
+import time
 import string
 import nltk
+try:
+    nltk.download('all')
+except:
+    pass
+    
 
 
-fake_list = ["spurious","bogus","bait",'not', "neither", "no", "nope","forged","misinformation","disinformation","fraudulent","fictitious","reliability","counterfeit","make-believe","false","stories","fabricated","pretend","imitation","feign","fraud","falsify","artificial","simulate","forged","forge","forgery","phony","sham","fraudulent","faked","fraudulent","cheat","mock","spurious","feigned"]
+
+fake_list = ["spurious","bogus","bait",'not','negative', "neither", "no", "nope","forged","misinformation","disinformation","fraudulent","fictitious","reliability","counterfeit","make-believe","false","stories","fabricated","pretend","imitation","feign","fraud","falsify","artificial","simulate","forged","forge","forgery","phony","sham","fraudulent","faked","fraudulent","cheat","mock","spurious","feigned"]
 all_stops = {'hadn', 'this', 'during', 'does', 'over', 'between', 'any', 'under', "you're", 'if', 'where', 'it', 'weren', 'these', 'again', 'in', '.', 'have', 'not', 'mightn', '%', '}', "weren't", 's', 'so', 'against', 'while', 'few', 'now', 'with', 'into', 'doesn', 'than', '@', 'are', 'of', 'some', 'isn', 'she', 're', 'needn', 'you', "doesn't", 'your', 'yours', 'o', 't', '*', 'but', 'them', '+', 'too', "wasn't", 'do', "that'll", 'hasn', 'own', 'ourselves', 'most', "don't", 'same', "hasn't", '{', '&', 've', 'why', 'above', 'those', 'yourself', 'wasn', 'myself', 'he', "she's", 'by', ';', 'below', '[', "hadn't", 'before', 'which', 'for', '>', "wouldn't", 'there', 'an', 'm', 'me', "shan't", 'ain', '(', 'a', 'has', 'y', 'no', "shouldn't", 'down', 'about', "it's", "isn't", "needn't", 'other', 'the', '=', 'after', '|', "you'd", 'been', 'having', '$', 'themselves', "mustn't", 'herself', '/', ':', 'mustn', 'hers', 'from', 'is', 'can', 'll', '-', "you'll", "aren't", 'should', 'up', 'very', 'whom', 'being', 'then', 'theirs', 'shan', 'd', 'yourselves', '"', "'", 'when', 'was', ',', 'because', '_', "mightn't", 'both', 'nor', 'itself', "you've", 'such', 'their', 'at', 'don', '?', "won't", 'were', 'shouldn', 'am', '`', "should've", '!', 'until', 'just', "didn't", 'and', 'out', 'further', 'how', "haven't", 'won', '^', 'more', 'ours', 'wouldn', 'they', 'to', 'its', 'my', 'only', 'what', 'once', '\\', ')', 'did', 'her', 'here', 'through', 'ma', '~', 'had', 'his', 'haven', '<', 'who', 'aren', 'all', 'didn', 'himself', 'as', 'will', 'i', 'that', 'our', 'doing', 'be', 'him', 'couldn', 'each', '#', 'we', 'off', 'or', "couldn't", 'on', ']'}
 
 
@@ -32,8 +39,8 @@ def get_list(query):
 
 
 
-def getdata(url, query_dict): 
-
+def getdata(url, query_dict,query): 
+    start_time = time.time()
     try:
         with requests.session() as s:
             r = s.get(url) 
@@ -53,12 +60,18 @@ def getdata(url, query_dict):
                     pass
             z2 = soup.find_all("h1") + soup.find_all("h2") + soup.find_all("h3") + soup.find_all("h4") + soup.find_all("h5") + soup.find_all("h6") + soup.find_all("p")
             for data in z2:
+                if time.time() - start_time > 1:
+                    return [percent, image, link1]
+                html_text = data.get_text()
+                if query in html_text:
+                    return [100, image, link1]
+                else:
+                    diff_l = query_dict - get_list(html_text)
+                    percent = (len(diff_l)/len(query_dict))*100
 
-                diff_l = query_dict - get_list(data.get_text())
-                percent = (len(diff_l)/len(query_dict))*100
-                for word in diff_l:
-                    if word in fake_list:
-                        percent = 0
+                    for word in diff_l:
+                        if word in fake_list:
+                            percent = 0
 
 
         return [percent, image, link1]
@@ -79,9 +92,9 @@ def search_me(query, msg):
     import time,math
     # time_now = time.time()
     # first_time = True
-    for j in search(query+" is it true ?" ,num_results=10, lang="en"):
+    for j in search(query ,num_results=20, lang="en"):
 
-        per = total_count/10
+        per = total_count/20
         try:
             # time.sleep(1.5)
             if total_count==0 or total_count%4==0:
@@ -91,7 +104,7 @@ def search_me(query, msg):
             pass
 
         
-        ans1 = getdata(j,query_dict)
+        ans1 = getdata(j,query_dict,query)
         if ans1 == -1:
             pass
         else:
@@ -120,12 +133,12 @@ logger = logging.getLogger(__name__)
 def start(update, context):
     """Send a message when the command /start is issued."""
     
-    update.message.reply_text('Hi, this bot can help you in your homework.\nTo begin with it type "/convert"')
+    update.message.reply_text('Hi, this bot can help you to check if a news is fake or not.\n')
 
 def convert(update, context):
     """Send a message when the command /start is issued."""
     
-    update.message.reply_text('Now, please send your txt file.')
+    update.message.reply_text('Now, please send the news.')
 
 
 def help_command(update, context):
@@ -149,7 +162,7 @@ def echo(update, context):
         except:
             urllib.request.urlretrieve("https://static.toiimg.com/thumb/imgsize-351883,msid-74902915,width-400,resizemode-4/74902915.jpg", "msg.jpg")
         with open('msg.jpg', 'rb') as my_picture:
-            caption = "\n<strong>This news is "+ str(ans[0]) +"% true. To know more about it -> </strong> <em><a style='font-size:10px;' href='"+ans[2]+"'>learn more</a></em>\n<em style='color:green;'>Hope You like it ...</em>"
+            caption = "\n<strong>This news is "+ str(ans[0]) +"% true. To know more about it -> </strong> <em><a style='font-size:10px;' href='"+ans[2]+"'>learn more</a></em>\n\n<em style='color:rgb(0,255,255);'>Hope You like it ...</em>"
             context.bot.send_photo(
                 chat_id, 
                 photo=my_picture, 
